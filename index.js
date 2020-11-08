@@ -13,7 +13,7 @@ function make2DArray(columns, rows) {
 let grid;
 let columns;
 let rows;
-let resolution = 40;
+let resolution = 20;
 let width = canvas.width;
 let height = canvas.height;
 
@@ -35,6 +35,8 @@ function setUp() {
 }
 
 function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       let x = i * resolution;
@@ -48,5 +50,43 @@ function draw() {
       ctx.strokeRect(x, y, resolution, resolution);
     }
   }
+
+  let updated = make2DArray(columns, rows);
+
+  for (let i = 0; i < columns; i++) {
+    for (let j = 0; j < rows; j++) {
+      let state = grid[i][j];
+      // Define the edges of the canvas as this does not have all sides
+      if (i === 0 || i === columns - 1 || j === 0 || j === rows - 1) {
+        updated[i][j] = state;
+      } else {
+        //Count live neighbours
+        let neighbours = countNeighbours(grid, i, j);
+
+        // Currently dead (aka 0) and 3 neighbours are alive
+        if (state === 0 && neighbours === 3) {
+          updated[i][j] = 1;
+        } else if ((state === 1 && neighbours < 2) || neighbours > 3) {
+          updated[i][j] = 0;
+        } else {
+          updated[i][j] = state;
+        }
+      }
+    }
+  }
+
+  grid = updated;
+  requestAnimationFrame(draw);
+}
+
+function countNeighbours(grid, x, y) {
+  let sum = 0;
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      sum += grid[x + i][y + j];
+    }
+  }
+  sum -= grid[x][y];
+  return sum;
 }
 setUp();
