@@ -13,7 +13,7 @@ function make2DArray(columns, rows) {
 let grid;
 let columns;
 let rows;
-let resolution = 20;
+let resolution = 10;
 let width = canvas.width;
 let height = canvas.height;
 
@@ -56,21 +56,16 @@ function draw() {
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       let state = grid[i][j];
-      // Define the edges of the canvas as this does not have all sides
-      if (i === 0 || i === columns - 1 || j === 0 || j === rows - 1) {
-        updated[i][j] = state;
-      } else {
-        //Count live neighbours
-        let neighbours = countNeighbours(grid, i, j);
+      //Count live neighbours
+      let neighbours = countNeighbours(grid, i, j);
 
-        // Currently dead (aka 0) and 3 neighbours are alive
-        if (state === 0 && neighbours === 3) {
-          updated[i][j] = 1;
-        } else if ((state === 1 && neighbours < 2) || neighbours > 3) {
-          updated[i][j] = 0;
-        } else {
-          updated[i][j] = state;
-        }
+      // Currently dead (aka 0) and 3 neighbours are alive
+      if (state === 0 && neighbours === 3) {
+        updated[i][j] = 1;
+      } else if ((state === 1 && neighbours < 2) || neighbours > 3) {
+        updated[i][j] = 0;
+      } else {
+        updated[i][j] = state;
       }
     }
   }
@@ -83,7 +78,10 @@ function countNeighbours(grid, x, y) {
   let sum = 0;
   for (let i = -1; i < 2; i++) {
     for (let j = -1; j < 2; j++) {
-      sum += grid[x + i][y + j];
+      let col = (x + i + columns) % columns;
+      let row = (y + j + rows) % rows;
+
+      sum += grid[col][row];
     }
   }
   sum -= grid[x][y];
